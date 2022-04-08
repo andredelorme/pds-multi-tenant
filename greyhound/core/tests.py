@@ -1,6 +1,7 @@
 import pytest
+from django.http import Http404
 
-from core.middleware import split_tenant, NoTenant, current_tenant
+from core.middleware import split_tenant, NoTenant, current_tenant, TenantMiddleware
 
 pytestmark = pytest.mark.django_db
 
@@ -67,3 +68,32 @@ def test_saldo_zero_view(client, tenant0):
     response = client.get('/tenant0/saldo/')
     assert response.status_code == 200
     assert response.context['saldo'] == 0
+
+
+def test_tenant_middleware(client):
+    """
+    Test para o Tenant Middleware
+    TODO checar se este teste deve ser quebrado no cenário sem tenant. Devemos quebrá-lo em dois testes ou deixamos apenas um.
+    """
+    middleware = TenantMiddleware(get_response=None)
+    path = '/tenant0/qualquercoisa'
+    tenant = middleware.get_tenant_from_url(path)
+    assert tenant == ('tenant0', '/qualquercoisa')
+
+    no_tenant_path = '/'
+    with pytest.raises(Http404):
+        middleware.get_tenant_from_url(no_tenant_path)
+
+
+def test_tenant_inexistente():
+    middleware = TenantMiddleware(get_response=None)
+    tenant_inexistente = 'tenant_inexistente'
+    with pytest.raises(Http404):
+        middleware.check_tenant(tenant_inexistente)
+
+
+def test_tenant_existente(tenant):
+    middleware = TenantMiddleware(get_response=None)
+    tenant_existente = middleware.check_tenant(tenant.slug)
+    assert tenant_existente is None
+    assert current_tenant() == tenant
