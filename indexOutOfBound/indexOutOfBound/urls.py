@@ -1,4 +1,4 @@
-"""update_sem_where URL Configuration
+"""indexOutOfBound URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -14,12 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 
-from update_sem_where.core.views import index
+from core import views
+from core.admin import tenant_admin_site
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index, name='index'),
-    path('<tenant>/', index)
+    re_path(r'tenants/\w+/home/', views.tenant_home),
+    re_path(r'tenants/\w+/admin/', tenant_admin_site.urls),
 ]

@@ -1,4 +1,4 @@
-"""update_sem_where URL Configuration
+"""poc URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -14,12 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-
-from update_sem_where.core.views import index
+from django.urls import path, include
+from accounting import urls as accounting_urls
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', index, name='index'),
-    path('<tenant>/', index)
+    path("admin/", admin.site.urls),
+    path("", include(accounting_urls)),
 ]
